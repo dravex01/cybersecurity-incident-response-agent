@@ -51,9 +51,14 @@ RETRIEVED CONTEXT:
 
 ALLOWED SOURCES: {sources}
 
-Required sections: Incident classification, Risk level, Immediate recommended actions,
-Containment steps, Investigation recommendations, Recovery / follow-up,
-Sources used, Important uncertainties. Cite only ALLOWED SOURCES."""
+Write only these sections: Immediate recommended actions, Containment steps,
+Investigation recommendations, Recovery / follow-up, Important uncertainties.
+The program adds the authoritative classification, risk decision, and source list after generation,
+so do not repeat them and do not include filenames, links, citations, or a Sources section.
+
+Keep the generated content under 350 words. Cover every requested section before adding detail,
+use short actionable bullets, and ensure every factual claim is supported by RETRIEVED CONTEXT or
+clearly labeled as a conditional recommendation."""
 
         answer, timings = timed(state, "generation", lambda: llm.generate(GENERATION_SYSTEM, prompt))
         score = state.get("risk_score")

@@ -24,7 +24,10 @@ def main() -> None:
         else OllamaProvider(
             settings.ollama_base_url,
             settings.ollama_model,
+            timeout=settings.ollama_timeout_seconds,
             num_ctx=settings.ollama_num_ctx,
+            num_predict=settings.ollama_num_predict,
+            think=settings.ollama_think,
         )
     )
     retriever = ChromaRetriever(

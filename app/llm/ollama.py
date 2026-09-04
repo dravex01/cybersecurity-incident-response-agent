@@ -14,22 +14,35 @@ class OllamaError(RuntimeError):
 
 class OllamaProvider(LLMProvider):
     def __init__(
-        self, base_url: str, model: str, timeout: float = 180.0, num_ctx: int = 8192
+        self,
+        base_url: str,
+        model: str,
+        timeout: float = 600.0,
+        num_ctx: int = 8192,
+        num_predict: int = 1024,
+        think: bool = False,
     ) -> None:
         self.base_url = base_url.rstrip("/")
         self.model = model
         self.timeout = timeout
         self.num_ctx = num_ctx
+        self.num_predict = num_predict
+        self.think = think
 
     def _chat(self, system_prompt: str, user_prompt: str, fmt: Any = None) -> str:
         payload: dict[str, Any] = {
             "model": self.model,
             "stream": False,
+            "think": self.think,
             "messages": [
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
             ],
-            "options": {"temperature": 0.1, "num_ctx": self.num_ctx},
+            "options": {
+                "temperature": 0.1,
+                "num_ctx": self.num_ctx,
+                "num_predict": self.num_predict,
+            },
         }
         if fmt is not None:
             payload["format"] = fmt

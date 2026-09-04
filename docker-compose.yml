@@ -6,11 +6,15 @@ services:
     environment:
       OLLAMA_BASE_URL: http://ollama:11434
       OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen3:8b}
+      OLLAMA_NUM_PREDICT: ${OLLAMA_NUM_PREDICT:-1024}
+      OLLAMA_TIMEOUT_SECONDS: ${OLLAMA_TIMEOUT_SECONDS:-600}
+      OLLAMA_THINK: ${OLLAMA_THINK:-false}
       EMBEDDING_MODEL: ${EMBEDDING_MODEL:-BAAI/bge-small-en-v1.5}
       CHROMA_PATH: /app/storage/chroma
       KNOWLEDGE_BASE_PATH: /app/data/knowledge_base
     volumes:
       - chroma_data:/app/storage/chroma
+      - huggingface_cache:/home/appuser/.cache/huggingface
     depends_on:
       ollama:
         condition: service_healthy
@@ -18,8 +22,6 @@ services:
 
   ollama:
     image: ollama/ollama:0.11.10
-    ports:
-      - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
     healthcheck:
@@ -31,5 +33,5 @@ services:
 
 volumes:
   chroma_data:
+  huggingface_cache:
   ollama_data:
-

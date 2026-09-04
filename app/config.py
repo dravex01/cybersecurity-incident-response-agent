@@ -13,6 +13,9 @@ class Settings(BaseSettings):
     ollama_base_url: str = "http://localhost:11434"
     ollama_model: str = "qwen3:8b"
     ollama_num_ctx: int = Field(8192, ge=2048, le=131072)
+    ollama_num_predict: int = Field(1024, ge=128, le=8192)
+    ollama_timeout_seconds: float = Field(600.0, ge=30.0, le=3600.0)
+    ollama_think: bool = False
     embedding_model: str = "BAAI/bge-small-en-v1.5"
     chroma_path: Path = Path("storage/chroma")
     knowledge_base_path: Path = Path("data/knowledge_base")

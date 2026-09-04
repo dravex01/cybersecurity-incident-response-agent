@@ -91,7 +91,7 @@ Scores are capped at 100: 0–19 Low, 20–39 Medium, 40–69 High, and 70–100
 
 ## LLM and grounding design
 
-The `LLMProvider` interface separates text and Pydantic-structured generation. `OllamaProvider` implements it using Ollama's local chat endpoint and JSON-schema format. `OLLAMA_MODEL` defaults to `qwen3:8b`, a capable instruct model that can be quantized for approximately 8 GB VRAM; model size, quantization, context, and concurrent load determine actual memory. `OLLAMA_NUM_CTX` defaults to 8192 to prevent very-long-context model defaults from spilling unnecessarily into system RAM. Change either without modifying graph nodes. `FakeLLMProvider` is deterministic and restricted to tests, offline evaluation, and development—not silently substituted into the Streamlit app.
+The `LLMProvider` interface separates text and Pydantic-structured generation. `OllamaProvider` implements it using Ollama's local chat endpoint and JSON-schema format. `OLLAMA_MODEL` defaults to `qwen3:8b`, a capable instruct model that can be quantized for approximately 8 GB VRAM; model size, quantization, context, and concurrent load determine actual memory. `OLLAMA_NUM_CTX` defaults to 8192 to prevent very-long-context model defaults from spilling unnecessarily into system RAM. `OLLAMA_NUM_PREDICT=1024` bounds answer length, `OLLAMA_TIMEOUT_SECONDS` defaults to 600 for slower CPU-only inference, and `OLLAMA_THINK=false` disables Qwen's hidden reasoning mode to keep interactive response times bounded. Change these settings without modifying graph nodes. `FakeLLMProvider` is deterministic and restricted to tests, offline evaluation, and development—not silently substituted into the Streamlit app.
 
 Grounding mitigations include source allow-listing, context and retrieval scores, structured verification, required operational sections, bounded query recovery, explicit uncertainty, and safe finalization after retry exhaustion. The model can still misunderstand evidence; a trained responder must validate consequential actions.
 
@@ -141,7 +141,7 @@ docker compose exec ollama ollama pull qwen3:8b
 docker compose exec app python -m app.rag.ingestion
 ```
 
-Open <http://localhost:8501>. Model pulling is intentionally explicit because automatic multi-gigabyte downloads make startup unreliable. Named volumes retain Ollama models and Chroma data. Stop with `docker compose down`; add `-v` only when you intentionally want to delete those persistent volumes.
+Open <http://localhost:8501>. Model pulling is intentionally explicit because automatic multi-gigabyte downloads make startup unreliable. Named volumes retain Ollama models, the Hugging Face embedding cache, and Chroma data. Stop with `docker compose down`; add `-v` only when you intentionally want to delete those persistent volumes.
 
 ## Testing and evaluation
 
