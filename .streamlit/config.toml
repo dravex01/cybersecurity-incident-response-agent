@@ -1,0 +1,10 @@
+[server]
+# Transformers exposes hundreds of lazily imported optional vision modules.
+# Streamlit's module-path watcher probes them and triggers noisy torchvision import errors.
+# The application does not need source hot-reload in normal operation.
+fileWatcherType = "none"
+runOnSave = false
+
+[browser]
+gatherUsageStats = false
+

@@ -1,0 +1,4 @@
+Prototype knowledge-base notice
+
+All procedures in this directory are original demonstration content created for this project. They are concise defensive starting points, not organization-specific policy, legal advice, or a substitute for trained cybersecurity incident responders. Users must adapt actions to business, safety, contractual, regulatory, and evidentiary requirements.
+
