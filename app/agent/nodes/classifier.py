@@ -52,6 +52,8 @@ def make_classifier(llm: LLMProvider):
                     (
                         "data breach",
                         "data leak",
+                        "customer data",
+                        "data export",
                         "exfiltrat",
                         "adatszivárgás",
                         "adatlopás",
@@ -82,7 +84,7 @@ def make_classifier(llm: LLMProvider):
                             "is_cybersecurity_related": True,
                             "requires_rag": True,
                             "requires_risk_analysis": True,
-                            "confidence": max(result.confidence, 0.75),
+                            "confidence": 0.75,
                             "rationale": (
                                 f"Deterministic recovery recognized explicit {incident_type.value} indicators."
                             ),

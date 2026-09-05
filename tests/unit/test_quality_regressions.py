@@ -6,7 +6,7 @@ from app.agent.nodes.generator import make_generator
 from app.agent.nodes.verifier import make_verifier
 from app.agent.schemas import VerificationResult
 from app.llm.fake import FakeLLMProvider
-from app.llm.ollama import OllamaProvider
+from app.llm.ollama import OllamaError, OllamaProvider
 from app.rag.graph import build_rag_graph
 from app.rag.retriever import InMemoryRetriever
 from app.tools.knowledge_search import KnowledgeSearchTool
@@ -85,3 +85,24 @@ def test_risk_model_failure_is_not_low_risk():
             raise RuntimeError("offline")
     with pytest.raises(RuntimeError, match="Risk assessment unavailable"):
         make_risk_analyzer(BrokenModel())({"user_query": "incident"})
+
+
+def test_structured_decisions_require_all_fields(monkeypatch):
+    from app.agent.schemas import IncidentClassification
+    captured = []
+    provider = OllamaProvider("http://localhost", "qwen3:8b")
+    def chat(system, prompt, fmt):
+        captured.append(fmt)
+        return '{"confidence": 0.95}'
+    monkeypatch.setattr(provider, "_chat", chat)
+    with pytest.raises(OllamaError, match="omitted required"):
+        provider.generate_structured("classify", "customer export", IncidentClassification)
+    assert set(captured[0]["required"]) == set(IncidentClassification.model_fields)
+
+
+def test_complete_structured_decision_is_preserved(monkeypatch):
+    from app.agent.schemas import IncidentClassification
+    decision = IncidentClassification(incident_type="general_security_question", requires_risk_analysis=False)
+    provider = OllamaProvider("http://localhost", "qwen3:8b")
+    monkeypatch.setattr(provider, "_chat", lambda *a: decision.model_dump_json())
+    assert not provider.generate_structured("classify", "response phases", IncidentClassification).requires_risk_analysis

@@ -61,14 +61,22 @@ class OllamaProvider(LLMProvider):
     def generate_structured(
         self, system_prompt: str, user_prompt: str, schema: type[ModelT]
     ) -> ModelT:
-        content = self._chat(system_prompt, user_prompt, schema.model_json_schema())
+        output_schema = schema.model_json_schema()
+        # Local-model constrained decoding must request every field explicitly.
+        # Pydantic defaults support internal fallbacks, not incomplete LLM decisions.
+        required = list(output_schema.get("properties", {}))
+        output_schema["required"] = required
+        content = self._chat(system_prompt, user_prompt, output_schema)
         try:
-            return schema.model_validate_json(content)
-        except ValueError as exc:
+            data = json.loads(content)
+        except json.JSONDecodeError as exc:
             start, end = content.find("{"), content.rfind("}")
             if start < 0 or end <= start:
                 raise OllamaError("Ollama returned malformed structured output") from exc
-            return schema.model_validate(json.loads(content[start : end + 1]))
+            data = json.loads(content[start : end + 1])
+        if not isinstance(data, dict) or set(required) - data.keys():
+            raise OllamaError("Ollama omitted required decision fields")
+        return schema.model_validate(data)
 
     def health(self) -> dict[str, Any]:
         try:
