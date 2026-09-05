@@ -1,0 +1,90 @@
+id,risk_required,retrieval_required,classification_correct,retrieval_hit,risk_agreement,concept_coverage,source_correctness,groundedness,verification_passed,end_to_end_success,actual_incident_type,actual_risk_level,actual_sources,error,answer,trace,timings,feedback,latency_seconds
+breach_01,True,True,False,True,True,1.0,1.0,0.95,True,False,unknown,HIGH,"['data_breach_response.md', 'incident_response_overview.md', 'malware_response.md', 'ransomware_response.md', 'unauthorized_access.md']",,"## Incident classification
+**unknown** (confidence 0.95).
+
+## Risk level
+**HIGH (45/100)** — calculated by the deterministic risk tool.
+
+**Immediate Recommended Actions**  
+- Preserve cloud audit logs and access records to ensure they are not overwritten or deleted.  
+- Retrieve the customer data export file from cloud storage to assess its contents and scope.  
+- Identify the external account and its access permissions using cloud audit logs.  
+- Determine the time window during which the download occurred using access logs and timestamps.  
+
+**Containment Steps**  
+- Isolate the affected cloud storage bucket or container to prevent further unauthorized access.  
+- Revoke or disable the compromised external account’s access credentials.  
+- Restrict access to the storage location and ensure no further exports or downloads can occur.  
+- Preserve forensic copies of the export file and audit logs for investigation.  
+
+**Investigation Recommendations**  
+- Verify if the external account has been previously flagged or associated with suspicious activity.  
+- Search for signs of persistence, privilege escalation, or unauthorized access to other assets.  
+- Validate the identity and permission path of the external account to determine if access was legitimate or compromised.  
+- Monitor for further access attempts while the investigation is ongoing.  
+
+**Recovery / Follow-up**  
+- Rotate affected secrets and validate least privilege for all accounts.  
+- Restore any unauthorized changes and ensure access controls are corrected.  
+- Engage internal legal and compliance teams for review and potential regulatory reporting.  
+- Conduct a post-incident review to strengthen access controls and monitoring.  
+
+**Important Uncertainties**  
+- The classification of this incident as a data breach is uncertain until further evidence is reviewed.  
+- The exact scope of data exposure and the intent of the external account remain unknown.  
+- The presence of an active adversary or malicious intent cannot be confirmed without further investigation.
+
+## Sources used
+- data_breach_response.md
+- incident_response_overview.md
+- unauthorized_access.md
+- malware_response.md
+- ransomware_response.md
+
+---
+*Defensive prototype guidance; it does not replace your incident-response team, legal counsel, or applicable reporting obligations.*","[{'node': 'classify_query', 'status': 'completed', 'details': 'incident_type=unknown; confidence=0.95'}, {'node': 'plan_response', 'status': 'completed', 'details': 'steps=6'}, {'node': 'rag.rewrite_query', 'status': 'completed', 'details': 'External account accessed and downloaded customer data export from cloud storage; incident type unknown. Defensive response: monitor cloud storage access logs, restrict external account permissions, enable data export audit trails, and implement access control policies. | Original indicators: An external account downloaded a customer data export from cloud storage.'}, {'node': 'rag.retrieve_documents', 'status': 'completed', 'details': 'chunks=10'}, {'node': 'rag.rerank_documents', 'status': 'completed', 'details': 'enabled=True'}, {'node': 'rag.validate_context', 'status': 'completed', 'details': 'score=0.75; sufficient=True'}, {'node': 'risk_analysis', 'status': 'completed', 'details': 'level=HIGH; score=45'}, {'node': 'generate_answer', 'status': 'completed', 'details': 'characters=2210'}, {'node': 'verify_answer', 'status': 'completed', 'details': 'passed=True; grounding=0.95; completeness=0.95'}, {'node': 'finalize_response', 'status': 'completed', 'details': 'warnings=0'}]","{'classification': 29.986886, 'planning': 21.486545, 'retrieval': 23.936588, 'risk_analysis': 11.084281, 'generation': 129.518788, 'verification': 97.778743}","The draft answer is well-structured and aligns with the provided context. It includes all required sections such as incident classification, risk level, immediate actions, containment steps, investigation recommendations, recovery/follow-up, and important uncertainties. The sources used are correctly cited and relevant to the scenario. The draft does not invent citations or make unsupported claims. The content is grounded in the provided materials and follows the incident response framework outlined in the sources.",313.80539814199994
+general_01,False,True,False,True,False,0.6666666666666666,1.0,1.0,True,False,unknown,LOW,"['data_breach_response.md', 'defensive_disclaimer.txt', 'incident_escalation.md', 'incident_response_overview.md', 'malware_response.md']",,"## Incident classification
+**unknown** (confidence 0.95).
+
+## Risk level
+**LOW (0/100)** — calculated by the deterministic risk tool.
+
+**Immediate Recommended Actions**  
+- Open an incident record and assign an owner with UTC timestamps.  
+- Preserve all logs, access records, and volatile evidence before any cleanup.  
+- Escalate immediately if critical services, regulated data, or an active adversary is suspected.  
+- Identify the affected systems, identities, data, and time range to scope the incident.  
+
+**Containment Steps**  
+- Isolate affected endpoints and disable or restrict compromised identities.  
+- Block validated indicators of compromise and restrict exposed storage.  
+- Revoke compromised tokens or credentials and preserve forensic copies.  
+- Ensure containment is proportionate and only complete when communication paths and abused identities are controlled.  
+
+**Investigation Recommendations**  
+- Retrieve relevant logs, telemetry, and process ancestry to determine the root cause and origin.  
+- Analyze command lines, signer, and hash information to identify malicious activity.  
+- Monitor for further access and maintain a timeline of events and action logs.  
+- Document all findings and hypotheses separately to avoid contamination of evidence.  
+
+**Recovery / Follow-up**  
+- Execute recovery procedures to restore systems and data to a secure state.  
+- Patch entry points, rotate credentials, and verify security telemetry.  
+- Conduct a recurrence-monitoring period to ensure the incident is fully resolved.  
+- Engage legal, privacy, and communications teams for notification and compliance.  
+
+**Important Uncertainties**  
+- The classification is unknown, and no confirmed high-impact factors have been identified.  
+- The absence of indicators does not disprove a breach; it only means it is unknown.  
+- Recovery is only complete after eradication, rebuild, and verified security telemetry.  
+- External notification and law-enforcement decisions must be handled by authorized leaders.
+
+## Sources used
+- incident_response_overview.md
+- defensive_disclaimer.txt
+- data_breach_response.md
+- malware_response.md
+- incident_escalation.md
+
+---
+*Defensive prototype guidance; it does not replace your incident-response team, legal counsel, or applicable reporting obligations.*","[{'node': 'classify_query', 'status': 'completed', 'details': 'incident_type=unknown; confidence=0.95'}, {'node': 'plan_response', 'status': 'completed', 'details': 'steps=6'}, {'node': 'rag.rewrite_query', 'status': 'completed', 'details': 'Describe the main phases of handling a cybersecurity incident, including incident detection, containment, eradication, recovery, and post-incident analysis, while preserving products, commands, indicators, attack behaviors, and incident type. Include defensive response concepts such as isolation, patching, logging, and threat intelligence integration. | Original indicators: Describe the main phases of handling a cybersecurity incident.'}, {'node': 'rag.retrieve_documents', 'status': 'completed', 'details': 'chunks=10'}, {'node': 'rag.rerank_documents', 'status': 'completed', 'details': 'enabled=True'}, {'node': 'rag.validate_context', 'status': 'completed', 'details': 'score=0.63; sufficient=True'}, {'node': 'risk_analysis', 'status': 'completed', 'details': 'level=LOW; score=0'}, {'node': 'generate_answer', 'status': 'completed', 'details': 'characters=2178'}, {'node': 'verify_answer', 'status': 'completed', 'details': 'passed=True; grounding=1.00; completeness=1.00'}, {'node': 'finalize_response', 'status': 'completed', 'details': 'warnings=0'}]","{'classification': 13.799172, 'planning': 26.391804, 'retrieval': 14.840553, 'risk_analysis': 11.574276, 'generation': 128.66324, 'verification': 97.462576}","The draft answer is well-aligned with the user query and the provided context. It accurately reflects the main phases of handling a cybersecurity incident as outlined in the sources. The content is comprehensive, well-structured, and properly grounded in the provided materials. No invented citations or unsupported claims are present. The answer appropriately addresses the unknown incident type and includes all required sections such as incident classification, risk level, immediate actions, containment, investigation, recovery, and important uncertainties. The sources used are correctly cited and relevant to the content.",292.74555461

@@ -1,0 +1,42 @@
+{
+  "corpus_sha256": {
+    "backup_recovery.md": "99fc86f7c0ddc9dd329bd563799e8ce23504f6feb7191505e861d08f78be4f39",
+    "credential_compromise.md": "6228dbbe77b62e446ba0f6b67b4995c6aac42b43efab5be400a23ce97af35b52",
+    "data_breach_response.md": "38aae9f855830d24568ce7c427e045b45196297837a9cfe4fdbb08fa3aed9d62",
+    "defensive_disclaimer.txt": "3f46b9af04095618a09c5f5d9cc18dad05f3a26f31d68730643f2290fa35f842",
+    "endpoint_containment.md": "d5951310045861090688e7611b600175c01e824e2c768d8603cc664a2149e3f5",
+    "evidence_preservation.md": "2e6faee9f3e481d991e6f0aa95de82bef2aff8076f740d0214318bdb1783d725",
+    "incident_escalation.md": "c1fb812f455ea9f1c6567eb9e9372063f584dcb3b8d92a54eb3460e4214b9b08",
+    "incident_response_overview.md": "06ca7bd301a06edf1df70cb161c44c743fe2a66ef73bd40e16aa8efa3607a9e0",
+    "malware_response.md": "6252496271759412f8a155b7390d7f712b4d2c084af8590f682f601c3e5367c3",
+    "mfa_takeover_response.md": "027c8e51a6a947470e03aefd8ce4397baba2ab779ad5ec42965372fa579f03e1",
+    "phishing_response.md": "0a55f83c158eef4a4862b5bf311c0f4347d24e92bc1e54618d1bb8640f4a41e2",
+    "powershell_triage.md": "e4837bfd2b44b57ac1e71767b73d3f21f07aba24d4381f57e376e8076c97d822",
+    "ransomware_response.md": "469f82ed082c5bedc506896c200ebdefc68f532e4c2b940a9f9d34afb0f0692a",
+    "suspicious_login.md": "e8d9f1e4dde5f4a7b9dbceec0577cb9e65b97ab4f1a6c769538197097dd04ccb",
+    "unauthorized_access.md": "4e3fdf9b7a8cfc40e71d55bb27d28e09b7160e2c7f26b38448bc8e3f9f3232a9"
+  },
+  "ollama_models": [
+    {
+      "name": "qwen3:8b",
+      "digest": "500a1f067a9f782620b40bee6f7b0c89e17ae61f686b92c24933e4ca4b2b8b41",
+      "size": 5225388164
+    }
+  ],
+  "tested_on": "2026-09-05",
+  "host_cpu": "AMD Ryzen 7 260 w/ Radeon 780M Graphics",
+  "host_ram_gib": 31.26,
+  "docker_logical_cpus": 16,
+  "docker_ram_bytes": 16376295424,
+  "embedding_revision": "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a",
+  "docker_image_at_measurement": "sha256:1d0f5c7da28e4c2ee12f4ebbeca31a4798ca725d28de2c45447fe50ad1d82e00",
+  "inference_device": "CPU",
+  "tests": {
+    "passed": 33,
+    "coverage_percent": 86,
+    "platforms": [
+      "Windows / Python 3.11.15",
+      "Linux container / Python 3.12.14"
+    ]
+  }
+}

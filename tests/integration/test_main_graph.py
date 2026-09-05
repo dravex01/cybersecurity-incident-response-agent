@@ -1,5 +1,5 @@
 from app.agent.graph import build_agent_graph, initial_state
-from app.agent.schemas import IncidentClassification, RiskFactors
+from app.agent.schemas import IncidentClassification, RiskEvidence
 from app.config import Settings
 from app.llm.fake import FakeLLMProvider
 from app.rag.retriever import InMemoryRetriever
@@ -37,8 +37,8 @@ def test_explicit_indicators_recover_weak_structured_outputs(tmp_path) -> None:
         def generate_structured(self, system_prompt, user_prompt, schema):
             if schema is IncidentClassification:
                 return IncidentClassification(incident_type="unknown", confidence=0.5)
-            if schema is RiskFactors:
-                return RiskFactors()
+            if schema is RiskEvidence:
+                return RiskEvidence()
             return super().generate_structured(system_prompt, user_prompt, schema)
 
     settings = Settings(_env_file=None, chroma_path=tmp_path, context_threshold=0.1)
@@ -63,8 +63,8 @@ def test_hungarian_suspicious_login_has_medium_risk(tmp_path) -> None:
         def generate_structured(self, system_prompt, user_prompt, schema):
             if schema is IncidentClassification:
                 return IncidentClassification(incident_type="unknown", confidence=0.95)
-            if schema is RiskFactors:
-                return RiskFactors()
+            if schema is RiskEvidence:
+                return RiskEvidence()
             return super().generate_structured(system_prompt, user_prompt, schema)
 
     settings = Settings(_env_file=None, chroma_path=tmp_path, context_threshold=0.1)
@@ -99,8 +99,8 @@ def test_hungarian_customer_export_overrides_out_of_scope_model(tmp_path) -> Non
                     requires_risk_analysis=False,
                     confidence=0.95,
                 )
-            if schema is RiskFactors:
-                return RiskFactors()
+            if schema is RiskEvidence:
+                return RiskEvidence()
             return super().generate_structured(system_prompt, user_prompt, schema)
 
     settings = Settings(_env_file=None, chroma_path=tmp_path, context_threshold=0.1)

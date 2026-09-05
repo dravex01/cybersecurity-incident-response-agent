@@ -11,8 +11,7 @@ __pycache__/
 htmlcov/
 storage/chroma/
 tmp/
-results/*.json
-results/*.csv
+results/**
 !results/.gitkeep
 *.log
 .idea/

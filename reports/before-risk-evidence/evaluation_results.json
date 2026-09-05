@@ -1,0 +1,211 @@
+{
+  "mode": "ollama",
+  "provenance": {
+    "created_at_utc": "2026-09-05T17:58:07.543864+00:00",
+    "platform": "Linux",
+    "python": "3.12.14",
+    "code_sha256": "3d64cc28729dfbc026ee1cdfd37a9dd8ffaf265d05e56a34bc4dbba59d0e3f30",
+    "dataset_sha256": "b5bce5f3ee4fcac65a848aea0a96d5ab7e63a97ac29537790d4e6a991186b37a",
+    "packages": {
+      "langgraph": "1.2.11",
+      "chromadb": "1.5.9",
+      "sentence-transformers": "5.7.0",
+      "streamlit": "1.63.0"
+    },
+    "settings": {
+      "ollama_model": "qwen3:8b",
+      "ollama_num_ctx": 8192,
+      "ollama_num_predict": 1024,
+      "ollama_timeout_seconds": 600.0,
+      "ollama_think": false,
+      "embedding_model": "BAAI/bge-small-en-v1.5",
+      "chunk_size": 850,
+      "chunk_overlap": 120,
+      "top_k": 5,
+      "context_threshold": 0.45,
+      "max_agent_retries": 2,
+      "max_rag_retries": 1,
+      "enable_reranker": true,
+      "log_level": "INFO",
+      "collection_name": "cybersecurity_incident_response"
+    }
+  },
+  "summary": {
+    "questions": 2,
+    "classification_accuracy": 1.0,
+    "retrieval_hit_rate": 1.0,
+    "risk_level_agreement": 1.0,
+    "required_concept_coverage": 1.0,
+    "source_correctness": 1.0,
+    "groundedness_heuristic": 0.95,
+    "end_to_end_success_rate": 1.0
+  },
+  "cases": [
+    {
+      "id": "breach_01",
+      "risk_required": true,
+      "retrieval_required": true,
+      "classification_correct": true,
+      "retrieval_hit": true,
+      "risk_agreement": true,
+      "concept_coverage": 1.0,
+      "source_correctness": 1.0,
+      "groundedness": 0.95,
+      "verification_passed": true,
+      "end_to_end_success": true,
+      "actual_incident_type": "data_breach",
+      "actual_risk_level": "CRITICAL",
+      "actual_sources": [
+        "credential_compromise.md",
+        "data_breach_response.md",
+        "malware_response.md",
+        "powershell_triage.md",
+        "unauthorized_access.md"
+      ],
+      "error": "",
+      "answer": "## Incident classification\n**data_breach** (confidence 0.95).\n\n## Risk level\n**CRITICAL (85/100)** \u2014 calculated by the deterministic risk tool.\n\n**Immediate Recommended Actions**  \n- Preserve all cloud audit logs, object history, and export-job records to establish the external account\u2019s identity and access permissions.  \n- Freeze the affected cloud storage bucket or file system to prevent further unauthorized access or data exfiltration.  \n- Validate the external account\u2019s access path, source network, and device to determine if the access was intentional or accidental.  \n\n**Containment Steps**  \n- Revoke the external account\u2019s access and disable any compromised credentials immediately.  \n- Review and adjust access controls to ensure least privilege and remove excessive permissions.  \n- Document the before-and-after permission state to support forensic analysis and regulatory reporting.  \n- Rotate all affected secrets and credentials to mitigate the risk of further exploitation.  \n\n**Investigation Recommendations**  \n- Analyze data access logs and metadata to determine the scope of the exported data and the time window of the breach.  \n- Search for signs of persistence, privilege escalation, or lateral movement within the cloud environment.  \n- Validate whether the external account was compromised, or if the access resulted from a misconfigured service or exposed token.  \n- Engage a third-party security auditor if required for regulatory or legal compliance.  \n\n**Recovery / Follow-Up**  \n- Rebuild or restore the affected cloud storage from trusted backups, ensuring integrity and security.  \n- Monitor for recurrence of suspicious activity or unauthorized access patterns.  \n- Conduct a full security audit to identify and remediate any configuration errors or vulnerabilities.  \n\n**Important Uncertainties**  \n- The external account\u2019s intent and whether the data was successfully used remain uncertain without further investigation.  \n- The exact scope of the breach and the full impact on sensitive data may not be fully known until a thorough forensic analysis is completed.  \n- The presence of any persistence or unauthorized access mechanisms is conditional on further evidence and cannot be confirmed without deeper analysis.\n\n## Sources used\n- data_breach_response.md\n- unauthorized_access.md\n- credential_compromise.md\n- powershell_triage.md\n- malware_response.md\n\n---\n*Defensive prototype guidance; it does not replace your incident-response team, legal counsel, or applicable reporting obligations.*",
+      "trace": [
+        {
+          "node": "classify_query",
+          "status": "completed",
+          "details": "incident_type=data_breach; confidence=0.95"
+        },
+        {
+          "node": "plan_response",
+          "status": "completed",
+          "details": "steps=6"
+        },
+        {
+          "node": "rag.rewrite_query",
+          "status": "completed",
+          "details": "data_breach: External account accessed and downloaded customer data export from cloud storage. | Original indicators: An external account downloaded a customer data export from cloud storage."
+        },
+        {
+          "node": "rag.retrieve_documents",
+          "status": "completed",
+          "details": "chunks=10"
+        },
+        {
+          "node": "rag.rerank_documents",
+          "status": "completed",
+          "details": "enabled=True"
+        },
+        {
+          "node": "rag.validate_context",
+          "status": "completed",
+          "details": "score=0.84; sufficient=True"
+        },
+        {
+          "node": "risk_analysis",
+          "status": "completed",
+          "details": "level=CRITICAL; score=85"
+        },
+        {
+          "node": "generate_answer",
+          "status": "completed",
+          "details": "characters=2397"
+        },
+        {
+          "node": "verify_answer",
+          "status": "completed",
+          "details": "passed=True; grounding=0.95; completeness=0.95"
+        },
+        {
+          "node": "finalize_response",
+          "status": "completed",
+          "details": "warnings=0"
+        }
+      ],
+      "timings": {
+        "classification": 45.5918,
+        "planning": 20.994668,
+        "retrieval": 23.345632,
+        "risk_analysis": 16.78427,
+        "generation": 129.805708,
+        "verification": 95.771373
+      },
+      "feedback": "The draft answer is well-structured and aligns with the provided context. It includes all required sections such as incident classification, risk level, immediate actions, containment steps, investigation recommendations, recovery, and important uncertainties. The sources used are correctly cited and relevant to the incident type (data_breach). The content is grounded in the provided materials and does not invent citations or make unsupported claims. The score reflects the high quality and alignment with the context.",
+      "latency_seconds": 332.30679606900003
+    },
+    {
+      "id": "general_01",
+      "risk_required": false,
+      "retrieval_required": true,
+      "classification_correct": true,
+      "retrieval_hit": true,
+      "risk_agreement": true,
+      "concept_coverage": 1.0,
+      "source_correctness": 1.0,
+      "groundedness": 0.95,
+      "verification_passed": true,
+      "end_to_end_success": true,
+      "actual_incident_type": "general_security_question",
+      "actual_risk_level": null,
+      "actual_sources": [
+        "data_breach_response.md",
+        "defensive_disclaimer.txt",
+        "incident_escalation.md",
+        "incident_response_overview.md",
+        "phishing_response.md"
+      ],
+      "error": "",
+      "answer": "## Incident classification\n**general_security_question** (confidence 0.95).\n\n## Risk level\nNot calculated: no incident risk assessment was requested.\n\n**Immediate Recommended Actions**  \n- Preserve all logs, access records, and evidence before any retention windows expire.  \n- Assign an incident owner and open an incident record with UTC timestamps and decision logs.  \n- Do not delete or modify any evidence; ensure chain of custody is maintained.  \n- Escalate immediately if ransomware, active lateral movement, or sensitive data exposure is suspected.  \n\n**Containment Steps**  \n- Isolate affected endpoints, disable or restrict compromised identities, and block validated indicators of compromise.  \n- Revoke compromised credentials, tokens, or access paths to prevent further unauthorized activity.  \n- Preserve volatile evidence and create forensic copies of affected systems and data.  \n- Restrict exposed storage and monitor for further access while containment is in place.  \n\n**Investigation Recommendations**  \n- Collect and analyze evidence to determine the nature, scope, and origin of the incident.  \n- Search for matching sender, subject, URL, attachment hash, or message identifier in affected mailboxes.  \n- Identify the data owner, systems, identities, and time range of the incident.  \n- Maintain a timeline, action log, and decision rationale for all investigative steps.  \n\n**Recovery / Follow-up**  \n- Restore affected systems and data to normal operations while ensuring security measures are in place.  \n- Patch vulnerabilities and neutralize any malicious activity identified during the investigation.  \n- Engage legal, privacy, and communications teams to prepare for external notification if required.  \n- Review and update incident response policies based on lessons learned.  \n\n**Important Uncertainties**  \n- A suspicion of compromise or foreign location does not constitute proof of an incident.  \n- Do not claim a breach is confirmed until evidence supports that conclusion.  \n- External notification and law-enforcement decisions must be handled by authorized organizational leaders.\n\n## Sources used\n- incident_response_overview.md\n- defensive_disclaimer.txt\n- data_breach_response.md\n- incident_escalation.md\n- phishing_response.md\n\n---\n*Defensive prototype guidance; it does not replace your incident-response team, legal counsel, or applicable reporting obligations.*",
+      "trace": [
+        {
+          "node": "classify_query",
+          "status": "completed",
+          "details": "incident_type=general_security_question; confidence=0.95"
+        },
+        {
+          "node": "plan_response",
+          "status": "completed",
+          "details": "steps=6"
+        },
+        {
+          "node": "rag.rewrite_query",
+          "status": "completed",
+          "details": "Describe the main phases of handling a cybersecurity incident."
+        },
+        {
+          "node": "rag.retrieve_documents",
+          "status": "completed",
+          "details": "chunks=10"
+        },
+        {
+          "node": "rag.rerank_documents",
+          "status": "completed",
+          "details": "enabled=True"
+        },
+        {
+          "node": "rag.validate_context",
+          "status": "completed",
+          "details": "score=0.71; sufficient=True"
+        },
+        {
+          "node": "generate_answer",
+          "status": "completed",
+          "details": "characters=2268"
+        },
+        {
+          "node": "verify_answer",
+          "status": "completed",
+          "details": "passed=True; grounding=0.95; completeness=0.95"
+        },
+        {
+          "node": "finalize_response",
+          "status": "completed",
+          "details": "warnings=0"
+        }
+      ],
+      "timings": {
+        "classification": 24.863586,
+        "planning": 27.814667,
+        "retrieval": 7.342791,
+        "generation": 130.696164,
+        "verification": 98.037448
+      },
+      "feedback": "The draft answer is well-structured and aligns with the retrieved context. It covers the main phases of handling a cybersecurity incident as requested, including incident classification, risk level, immediate actions, containment, investigation, recovery, and important uncertainties. The content is supported by the provided sources, and the sources used are correctly cited. The draft does not invent citations or make unsupported claims. The answer is comprehensive and meets the user's request.",
+      "latency_seconds": 288.7685636840001
+    }
+  ]
+}
