@@ -75,9 +75,8 @@ class OllamaProvider(LLMProvider):
             response = httpx.get(f"{self.base_url}/api/tags", timeout=5)
             response.raise_for_status()
             models = [item.get("name", "") for item in response.json().get("models", [])]
-            available = self.model in models or any(
-                name.split(":")[0] == self.model.split(":")[0] for name in models
-            )
+            requested = self.model if ":" in self.model else f"{self.model}:latest"
+            available = requested in models
             return {"reachable": True, "model_available": available, "models": models}
         except httpx.HTTPError as exc:
             return {"reachable": False, "model_available": False, "error": str(exc)}

@@ -1,0 +1,37 @@
+name: Submission checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+          cache-dependency-path: requirements.lock
+      - name: Install the pinned CPU runtime and test tools
+        run: |
+          python -m pip install -r requirements.lock
+          python -m pip install --no-deps --no-build-isolation .
+          python -m pip install 'pytest>=8.3,<10' 'pytest-cov>=6,<8' 'ruff>=0.8,<1'
+          python -m pip check
+      - run: python -m ruff check .
+      - run: python -m pytest --cov=app --cov-report=term-missing
+      - run: docker compose config --quiet
+      - name: Build and check container startup
+        run: |
+          docker build -t cyber-ir-ci .
+          docker run -d --name cyber-ir-ci -p 127.0.0.1:8501:8501 cyber-ir-ci
+          for attempt in $(seq 1 30); do
+            if curl --fail http://localhost:8501/_stcore/health; then exit 0; fi
+            sleep 2
+          done
+          docker logs cyber-ir-ci
+          exit 1

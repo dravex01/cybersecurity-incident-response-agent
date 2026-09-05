@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 from app.config import Settings
 from app.rag.embeddings import HashEmbedding
 from app.rag.ingestion import ingest
@@ -31,3 +33,16 @@ def test_document_ingestion_with_metadata(tmp_path: Path) -> None:
     refreshed = ingest(settings, embedding)
     assert refreshed["removed_chunks"] == stats["chunks"]
     assert refreshed["collection_count"] == 1
+
+    (source / "procedure.md").write_text("", encoding="utf-8")
+    with pytest.raises(RuntimeError, match="No text chunks"):
+        ingest(settings, embedding)
+    assert retriever.count() == 1
+
+    (source / "procedure.md").write_text("Another revision", encoding="utf-8")
+    class BrokenEmbedding(HashEmbedding):
+        def __call__(self, input):
+            raise RuntimeError("embedding failed")
+    with pytest.raises(RuntimeError, match="embedding failed"):
+        ingest(settings, BrokenEmbedding())
+    assert retriever.count() == 1

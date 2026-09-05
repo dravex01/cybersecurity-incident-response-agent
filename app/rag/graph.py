@@ -12,6 +12,7 @@ from app.rag.reranker import rerank
 from app.rag.retriever import Retriever
 from app.rag.state import RAGState
 from app.rag.validation import context_is_sufficient, context_quality
+from app.tools.knowledge_search import KnowledgeSearchTool
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +45,7 @@ def build_rag_graph(
 
     def retrieve_documents(state: RAGState) -> dict[str, Any]:
         candidate_k = min(20, max(top_k, top_k * 2))
-        documents = retriever.search(state["rewritten_query"], candidate_k)
+        documents = KnowledgeSearchTool(retriever, candidate_k).invoke(state["rewritten_query"])
         errors = state.get("errors", [])
         if not documents:
             errors = [*errors, "Knowledge retrieval returned no documents. Run ingestion first."]
@@ -69,7 +70,7 @@ def build_rag_graph(
                 continue
             seen_sources.add(source)
             documents.append(document)
-            if len(documents) == 3:
+            if len(documents) == top_k:
                 break
         return {
             "reranked_documents": documents,

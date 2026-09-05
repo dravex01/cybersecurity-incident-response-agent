@@ -25,7 +25,7 @@ def ingest(
     documents = load_directory(source)
     embedding = embedding_function or SentenceTransformerEmbedding(settings.embedding_model)
     retriever = ChromaRetriever(settings.chroma_path, settings.collection_name, embedding)
-    removed_chunks = retriever.clear()
+    previous_ids = set(retriever.collection.get(include=[]).get("ids", []))
     ids: list[str] = []
     texts: list[str] = []
     metadatas: list[dict[str, Any]] = []
@@ -48,6 +48,12 @@ def ingest(
             texts[offset : offset + batch_size],
             metadatas[offset : offset + batch_size],
         )
+    # Keep the previous index usable if parsing or embedding fails. Delete obsolete
+    # chunks only after every new batch was successfully stored (not transactional).
+    obsolete_ids = sorted(previous_ids - set(ids))
+    for offset in range(0, len(obsolete_ids), batch_size):
+        retriever.collection.delete(ids=obsolete_ids[offset : offset + batch_size])
+    removed_chunks = len(obsolete_ids)
     logger.info("Ingested %s chunks from %s source documents", len(texts), len(documents))
     return {
         "source_documents": len(documents),

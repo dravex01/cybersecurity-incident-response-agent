@@ -17,5 +17,5 @@ def timed(state: AgentState, name: str, operation: Callable[[], T]) -> tuple[T, 
     started = time.perf_counter()
     result = operation()
     elapsed = time.perf_counter() - started
-    return result, {**state.get("timings", {}), name: round(elapsed, 6)}
-
+    timings = state.get("timings", {})
+    return result, {**timings, name: round(timings.get(name, 0.0) + elapsed, 6)}

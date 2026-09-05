@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import time
+
 import streamlit as st
 
 from app.agent.graph import build_agent_graph, initial_state
@@ -47,9 +49,17 @@ with st.sidebar:
         for message in health["guidance"]:
             st.warning(message)
     st.caption("Never paste secrets, credentials, or unnecessary personal data.")
+    st.caption("Each message is analyzed independently; chat history is for display only.")
+    if st.button("Clear conversation", use_container_width=True):
+        st.session_state.messages = []
+        st.rerun()
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
+
+if not st.session_state.messages:
+    st.info("Describe what happened, which account or system is affected, and what evidence is available. Hungarian and English inputs are supported. CPU inference can take several minutes.")
+    st.caption('Example: "An external account downloaded a customer data export."')
 
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
@@ -79,7 +89,7 @@ for message in st.session_state.messages:
                     }
                 )
 
-if query := st.chat_input("Describe the incident or ask a defensive response question"):
+if query := st.chat_input("Describe the incident or ask a defensive response question", disabled=not health["healthy"], max_chars=8000):
     st.session_state.messages.append({"role": "user", "content": query})
     with st.chat_message("user"):
         st.markdown(query)
@@ -87,9 +97,27 @@ if query := st.chat_input("Describe the incident or ask a defensive response que
         if not health["healthy"]:
             st.error("The system is not ready. Follow the health guidance in the sidebar.")
         else:
-            with st.spinner("Analyzing incident…"):
+            with st.status("Analyzing incident…", expanded=True) as progress:
                 try:
-                    result = graph.invoke(initial_state(query))
+                    started = time.perf_counter()
+                    result = initial_state(query)
+                    labels = {
+                        "classify_query": "Incident classified",
+                        "plan_response": "Response plan prepared",
+                        "execute_knowledge_retrieval": "Knowledge base searched and context checked",
+                        "risk_analysis": "Risk factors assessed",
+                        "generate_answer": "Response drafted",
+                        "verify_answer": "Response verification completed",
+                        "increment_agent_retry": "Improving the response using verifier feedback",
+                        "finalize_response": "Analysis complete",
+                    }
+                    for update in graph.stream(result, stream_mode="updates"):
+                        for node, values in update.items():
+                            result.update(values)
+                            elapsed = time.perf_counter() - started
+                            st.write(f"{labels.get(node, node)} · {elapsed:.1f} s")
+                    result["total_seconds"] = time.perf_counter() - started
+                    progress.update(label=f"Complete in {result['total_seconds']:.1f} s", state="complete", expanded=False)
                     answer = result["final_answer"]
                     st.markdown(answer)
                     st.session_state.messages.append(
@@ -97,4 +125,5 @@ if query := st.chat_input("Describe the incident or ask a defensive response que
                     )
                     st.rerun()
                 except Exception as exc:
+                    progress.update(label="Analysis could not finish", state="error")
                     st.error(f"The analysis could not be completed: {exc}")

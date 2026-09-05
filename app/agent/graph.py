@@ -44,7 +44,7 @@ def build_agent_graph(llm: LLMProvider, retriever: Retriever, settings: Settings
         )
         timings = {
             **state.get("timings", {}),
-            "retrieval": round(time.perf_counter() - started, 6),
+            "retrieval": round(state.get("timings", {}).get("retrieval", 0.0) + time.perf_counter() - started, 6),
         }
         return {
             "rewritten_query": result.get("rewritten_query", ""),
@@ -98,7 +98,7 @@ def build_agent_graph(llm: LLMProvider, retriever: Retriever, settings: Settings
     )
     graph.add_edge("increment_agent_retry", "execute_knowledge_retrieval")
     graph.add_edge("finalize_response", END)
-    return graph.compile()
+    return graph.compile().with_config({"recursion_limit": 64})
 
 
 def initial_state(query: str) -> AgentState:
@@ -109,4 +109,3 @@ def initial_state(query: str) -> AgentState:
         "errors": [],
         "timings": {},
     }
-

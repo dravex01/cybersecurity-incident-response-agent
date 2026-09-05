@@ -51,6 +51,8 @@ RETRIEVED CONTEXT:
 
 ALLOWED SOURCES: {sources}
 
+PREVIOUS VERIFIER FEEDBACK: {state.get('verification_feedback', 'None')}
+
 Write only these sections: Immediate recommended actions, Containment steps,
 Investigation recommendations, Recovery / follow-up, Important uncertainties.
 The program adds the authoritative classification, risk decision, and source list after generation,
@@ -62,31 +64,30 @@ clearly labeled as a conditional recommendation."""
 
         answer, timings = timed(state, "generation", lambda: llm.generate(GENERATION_SYSTEM, prompt))
         score = state.get("risk_score")
-        if score is not None:
-            authoritative = f"{score}/100"
-            filtered_lines = []
-            for line in answer.splitlines():
-                normalized = line.strip().strip("#*_ ").lower()
-                generated_decision_line = normalized.startswith(
-                    "incident classification"
-                ) or normalized.startswith("risk level")
-                conflicting_score = (
-                    "risk score" in normalized
-                    and authoritative not in line
-                    and bool(re.search(r"\d", line))
-                )
-                if not generated_decision_line and not conflicting_score:
-                    filtered_lines.append(line)
-            answer = "\n".join(filtered_lines)
-            answer = (
-                "## Incident classification\n"
-                f"**{state.get('incident_type', 'unknown')}** "
-                f"(confidence {state.get('classification_confidence', 0):.2f}).\n\n"
-                "## Risk level\n"
-                f"**{state.get('risk_level')} ({authoritative})** — calculated by the "
-                f"deterministic risk tool.\n\n{answer.lstrip()}"
-            )
-        if sources and "## Sources used" not in answer:
+        # Replace entire generated decision/source sections, not just their headings.
+        lines = []
+        skip = False
+        for line in answer.splitlines():
+            heading = re.match(r"^\s*(?:#{1,6}\s+|\*\*)(.+)", line)
+            normalized = line.strip().strip("#*_ :").lower()
+            if heading:
+                skip = normalized.startswith(("incident classification", "risk level", "sources used", "sources:"))
+            if not skip:
+                lines.append(line)
+        answer = "\n".join(lines).strip()
+        risk_text = (
+            f"**{state.get('risk_level')} ({score}/100)** — calculated by the deterministic risk tool."
+            if score is not None else "Not calculated: no incident risk assessment was requested."
+        )
+        if state.get("requires_risk_analysis") and score is None:
+            risk_text = "Unavailable: risk-factor extraction failed; manual triage is required."
+        answer = (
+            "## Incident classification\n"
+            f"**{state.get('incident_type', 'unknown')}** "
+            f"(confidence {state.get('classification_confidence', 0):.2f}).\n\n"
+            f"## Risk level\n{risk_text}\n\n{answer}"
+        )
+        if sources:
             answer = f"{answer.rstrip()}\n\n## Sources used\n" + "\n".join(f"- {source}" for source in sources)
         return {
             "draft_answer": answer,

@@ -18,6 +18,7 @@ REQUIRED_SECTIONS = (
     "immediate recommended actions",
     "containment",
     "investigation",
+    "recovery",
     "important uncertainties",
 )
 
@@ -39,7 +40,7 @@ def _deterministic_verification_fallback(
     cited_sources = set(re.findall(r"[\w.-]+\.(?:md|txt|pdf)", answer, flags=re.IGNORECASE))
     sources_valid = not cited_sources or cited_sources <= allowed_sources
     has_context = bool(state.get("context")) or not state.get("requires_rag", False)
-    passed = completeness >= 5 / 6 and sources_valid and has_context
+    passed = completeness == 1.0 and sources_valid and has_context
     grounding = state.get("context_score", 0.0) if has_context else 0.0
     return VerificationResult(
         verification_passed=passed,
@@ -82,6 +83,23 @@ DRAFT ANSWER:
                 logger.warning("Verification failed: %s", exc)
                 result = _deterministic_verification_fallback(state, exc)
                 timings = state.get("timings", {})
+            # The model cannot approve fabricated filenames or omitted sections.
+            answer = state.get("draft_answer", "")
+            citations = set(re.findall(r"[\w.-]+\.(?:md|txt|pdf)\b", answer.lower()))
+            allowed = {str(source).lower() for source in allowed_sources if source}
+            missing = [section for section in REQUIRED_SECTIONS if section not in answer.lower()]
+            problems = []
+            if citations - allowed:
+                problems.append(f"Unknown source names: {sorted(citations - allowed)}")
+            if missing:
+                problems.append(f"Missing sections: {missing}")
+            if state.get("requires_rag") and (not allowed or not citations):
+                problems.append("No retrieved sources cited")
+            if problems:
+                result = result.model_copy(update={
+                    "verification_passed": False,
+                    "feedback": "; ".join(problems) + ". " + result.feedback,
+                })
         return {
             "verification_passed": result.verification_passed,
             "grounding_score": result.grounding_score,

@@ -23,7 +23,7 @@ def make_risk_analyzer(llm: LLMProvider):
                 )
             except Exception as exc:
                 logger.warning("Risk-factor extraction failed: %s", exc)
-                factors = RiskFactors()
+                raise RuntimeError("Risk assessment unavailable: model extraction failed. Retry when Ollama is ready; do not interpret this as Low risk.") from exc
             query = state["user_query"].lower()
             explicit = {
                 "malware_execution": any(
