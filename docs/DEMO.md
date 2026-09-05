@@ -1,6 +1,7 @@
 # Reviewer walkthrough
 
 1. Follow **Docker quick start** in the README. After explicit model download and ingestion, open `http://localhost:8501`.
+   On a supported NVIDIA machine, include `-f docker-compose.yml -f docker-compose.gpu.yml` as documented in the README, then confirm GPU use with `ollama ps` after the first request.
 2. Confirm the sidebar reports the configured model and 40 knowledge chunks from the supplied corpus.
 3. Submit: `An external account downloaded a customer data export from cloud storage.` Watch each main step complete. Inspect **Agent execution**, **Retrieved context**, **Risk result**, and **System/debug information**.
 4. The reported download should trigger retrieval and risk analysis. The exact example has two supported factors: external access and sensitive-data exposure, totaling 45/100 (High). Inspect their verbatim evidence and any keyword-recovered factors in **Risk result**. Do not infer administrator privileges, credential theft or critical infrastructure from an ordinary external account/cloud-storage reference. A short incident description is not proof that access was unauthorized: review the uncertainties.

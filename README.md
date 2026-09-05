@@ -28,6 +28,19 @@ docker compose exec app python -m app.rag.ingestion
 
 Open [localhost:8501](http://localhost:8501). The sidebar should show the configured model and **40 knowledge chunks from 15 documents**. The first ingestion downloads the embedding model. Model downloads are explicit; no host Python environment or host Ollama installation is needed.
 
+### Optional NVIDIA GPU acceleration
+
+The base Compose file is CPU-compatible so reviewers without an NVIDIA GPU can run it. On a machine where Docker can access an NVIDIA GPU, layer the included GPU override on every Compose command:
+
+```powershell
+docker compose -f docker-compose.yml -f docker-compose.gpu.yml up --build -d
+docker compose -f docker-compose.yml -f docker-compose.gpu.yml exec ollama ollama pull qwen3:8b
+docker compose -f docker-compose.yml -f docker-compose.gpu.yml exec app python -m app.rag.ingestion
+docker compose -f docker-compose.yml -f docker-compose.gpu.yml exec ollama ollama ps
+```
+
+After the first model request, `ollama ps` should report `100% GPU` or a CPU/GPU split under `PROCESSOR`. The override only grants the Ollama service GPU access; it does not change the model, RAG index or answer-quality settings. Use both `-f` arguments again for later `up`, `logs`, `exec` and `down` commands for that GPU-enabled stack. Docker Desktop on Windows requires WSL2 GPU support and a current NVIDIA driver.
+
 Compose exposes the UI only on localhost. Ollama is reachable inside the Compose network at `http://ollama:11434`, so an existing host Ollama on port 11434 does not conflict. The UI health endpoint checks server availability; the sidebar additionally checks the exact model tag and index count.
 
 ```powershell
@@ -41,7 +54,7 @@ Named volumes retain Ollama weights, the Hugging Face cache and Chroma. `down` r
 
 Optional settings: copy `.env.example` to `.env` and edit it before starting. If `OLLAMA_MODEL` is changed, pull that exact tag with `docker compose exec ollama ollama pull YOUR_TAG`. After changing the embedding model, choose a new `COLLECTION_NAME` and ingest again; vectors from different embedding models must not be mixed.
 
-The Dockerfile pins the Python base image by digest and the tested Python 3.12/Linux runtime in `requirements.lock`. It installs from source, runs `pip check`, includes Streamlit configuration, and runs as a non-root user. The lock targets Linux containers; Windows native development uses the project dependency ranges. Fresh builds still require access to package registries and model downloads. Model tags can change upstream; smoke-test metadata and the model inventory record the tested local artifacts.
+The Dockerfile pins the Python base image by digest and the tested Python 3.12/Linux runtime in `requirements.lock`. It installs from source, runs `pip check`, includes Streamlit configuration, and runs as a non-root user. The lock targets Linux containers; Windows native development uses the project dependency ranges. Fresh builds still require access to package registries and model downloads. Model tags can change upstream; smoke-test metadata and the model inventory record the tested local artifacts. `docker-compose.gpu.yml` is an optional NVIDIA override; the default `docker-compose.yml` remains CPU-portable.
 
 ## Architecture and decisions
 

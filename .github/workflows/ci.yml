@@ -25,6 +25,7 @@ jobs:
       - run: python -m ruff check .
       - run: python -m pytest --cov=app --cov-report=term-missing
       - run: docker compose config --quiet
+      - run: docker compose -f docker-compose.yml -f docker-compose.gpu.yml config --quiet
       - name: Build and check container startup
         run: |
           docker build -t cyber-ir-ci .
