@@ -27,6 +27,8 @@ def evaluate_case(case: dict[str, Any], result: dict[str, Any]) -> dict[str, Any
     risk_required = case["expected_risk_level"] is not None
     risk = (str(result.get("risk_level", "")).lower() in case["expected_risk_level"]
             if risk_required else result.get("risk_score") is None)
+    if "expected_risk_score" in case:
+        risk = risk and result.get("risk_score") == case["expected_risk_score"]
     cited = set(re.findall(r"[\w.-]+\.(?:md|txt|pdf)\b", answer, re.IGNORECASE))
     valid_sources = {source.lower() for source in actual_sources}
     source_correctness = len(cited & valid_sources) / len(cited) if cited else float(not retrieval_required)
@@ -47,6 +49,10 @@ def evaluate_case(case: dict[str, Any], result: dict[str, Any]) -> dict[str, Any
         "end_to_end_success": success,
         "actual_incident_type": result.get("incident_type"),
         "actual_risk_level": result.get("risk_level"),
+        "actual_risk_score": result.get("risk_score"),
+        "risk_factors": result.get("risk_factors", {}),
+        "risk_evidence": result.get("risk_evidence", {}),
+        "risk_keyword_factors": result.get("risk_keyword_factors", []),
         "actual_sources": sorted(actual_sources),
     }
 

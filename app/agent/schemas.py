@@ -50,6 +50,19 @@ class RiskFactors(BaseModel):
     ransomware_indicators: bool = False
 
 
+class RiskEvidence(BaseModel):
+    """Verbatim incident excerpts, not guesses or Boolean model decisions."""
+
+    malware_execution: str = Field("", description="Quote reporting actual malicious/suspicious code execution; otherwise empty.")
+    privileged_account_involved: str = Field("", description="Quote explicitly identifying an admin/root/privileged identity; ordinary accounts do not qualify.")
+    sensitive_data_exposed: str = Field("", description="Quote reporting sensitive/customer data downloaded, disclosed or exposed.")
+    external_access_detected: str = Field("", description="Quote reporting external access or a foreign sign-in.")
+    credential_compromise: str = Field("", description="Quote reporting a stolen/disclosed password/token or an unexpected new MFA method; external access alone is insufficient.")
+    lateral_movement: str = Field("", description="Quote reporting attacker movement between hosts, not a possible investigation step.")
+    critical_asset_affected: str = Field("", description="Quote explicitly identifying a critical/production server or domain controller; cloud storage alone is insufficient.")
+    ransomware_indicators: str = Field("", description="Quote reporting ransomware, encrypted files or ransom demands.")
+
+
 class VerificationResult(BaseModel):
     verification_passed: bool
     grounding_score: float = Field(ge=0, le=1)

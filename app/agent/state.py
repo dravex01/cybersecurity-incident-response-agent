@@ -19,6 +19,8 @@ class AgentState(TypedDict, total=False):
     context: str
     context_score: float
     risk_factors: dict[str, bool]
+    risk_evidence: dict[str, str]
+    risk_keyword_factors: list[str]
     risk_score: int
     risk_level: str
     risk_explanation: str
@@ -32,4 +34,3 @@ class AgentState(TypedDict, total=False):
     execution_trace: list[dict[str, Any]]
     errors: list[str]
     timings: dict[str, float]
-

@@ -7,6 +7,7 @@ from app.agent.schemas import (
     IncidentClassification,
     IncidentType,
     QueryRewrite,
+    RiskEvidence,
     RiskFactors,
     Severity,
     VerificationResult,
@@ -122,6 +123,19 @@ class FakeLLMProvider(LLMProvider):
             )
         if schema is QueryRewrite:
             return schema.model_validate({"query": f"{incident.value} incident response containment investigation evidence preservation"})
+        if schema is RiskEvidence:
+            indicators = {
+                "malware_execution": ("powershell", "malware", "payload ran"),
+                "privileged_account_involved": ("privileged", "admin", "root"),
+                "sensitive_data_exposed": ("customer data", "data leak", "exfiltrat"),
+                "external_access_detected": ("external", "foreign sign-in"),
+                "credential_compromise": ("entered their password", "token was posted", "stolen credential"),
+                "lateral_movement": ("lateral movement", "spread to", "multiple hosts"),
+                "critical_asset_affected": ("production server", "critical server", "domain controller"),
+                "ransomware_indicators": ("ransom", "encrypted files"),
+            }
+            return schema.model_validate({name: next((term for term in terms if term in lower), "")
+                                          for name, terms in indicators.items()})
         if schema is RiskFactors:
             return schema.model_validate(
                 {

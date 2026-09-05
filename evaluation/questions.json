@@ -171,9 +171,9 @@
     "question": "An external account downloaded a customer data export from cloud storage.",
     "expected_incident_type": "data_breach",
     "expected_risk_level": [
-      "high",
-      "critical"
+      "high"
     ],
+    "expected_risk_score": 45,
     "expected_sources": [
       "data_breach_response.md",
       "incident_escalation.md"
@@ -280,6 +280,7 @@
     "expected_risk_level": [
       "high"
     ],
+    "expected_risk_score": 45,
     "expected_sources": [
       "data_breach_response.md"
     ],

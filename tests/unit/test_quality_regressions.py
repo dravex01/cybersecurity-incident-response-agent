@@ -106,3 +106,43 @@ def test_complete_structured_decision_is_preserved(monkeypatch):
     provider = OllamaProvider("http://localhost", "qwen3:8b")
     monkeypatch.setattr(provider, "_chat", lambda *a: decision.model_dump_json())
     assert not provider.generate_structured("classify", "response phases", IncidentClassification).requires_risk_analysis
+
+
+def test_risk_requires_verbatim_evidence_not_invented_factors():
+    from app.agent.nodes.risk_analysis import make_risk_analyzer
+    from app.agent.schemas import RiskEvidence
+
+    class InventedEvidence(FakeLLMProvider):
+        def generate_structured(self, system_prompt, user_prompt, schema):
+            assert schema is RiskEvidence
+            return RiskEvidence(privileged_account_involved="administrator",
+                                credential_compromise="stolen password",
+                                critical_asset_affected="production server")
+
+    result = make_risk_analyzer(InventedEvidence())(
+        {"user_query": "An external account downloaded a customer data export from cloud storage."})
+    assert result["risk_score"] == 45
+    assert result["risk_evidence"] == {}
+    assert not result["risk_factors"]["credential_compromise"]
+
+
+def test_risk_retains_verbatim_evidence_for_analyst_review():
+    from app.agent.nodes.risk_analysis import make_risk_analyzer
+    from app.agent.schemas import RiskEvidence
+
+    class QuotedEvidence(FakeLLMProvider):
+        def generate_structured(self, system_prompt, user_prompt, schema):
+            return RiskEvidence(credential_compromise="The session cookie was stolen")
+
+    result = make_risk_analyzer(QuotedEvidence())({"user_query": "The session cookie was stolen."})
+    assert result["risk_score"] == 20
+    assert result["risk_evidence"]["credential_compromise"] == "The session cookie was stolen"
+
+
+def test_risk_metric_rejects_overestimation():
+    case = {"id": "export", "expected_incident_type": "data_breach", "expected_sources": [],
+            "expected_risk_level": ["high", "critical"], "expected_risk_score": 45, "required_concepts": []}
+    result = {"incident_type": "data_breach", "risk_level": "CRITICAL", "risk_score": 85}
+    assert not evaluate_case(case, result)["risk_agreement"]
+    result.update(risk_level="HIGH", risk_score=45)
+    assert evaluate_case(case, result)["risk_agreement"]

@@ -76,8 +76,10 @@ for message in st.session_state.messages:
                     st.markdown(f"**{metadata.get('filename', 'unknown')}** · score {document.get('rerank_score', 0):.2f}")
                     st.text(document.get("content", "")[:1200])
             with st.expander("Risk result"):
-                st.metric(result.get("risk_level", "N/A"), result.get("risk_score", 0))
+                st.metric(result.get("risk_level", "Not calculated"), result.get("risk_score", "—"))
                 st.write(result.get("risk_explanation", "Risk analysis was not required."))
+                st.json({"verbatim_model_evidence": result.get("risk_evidence", {}),
+                         "keyword_recovery_factors": result.get("risk_keyword_factors", [])})
             with st.expander("System/debug information"):
                 st.json(
                     {
